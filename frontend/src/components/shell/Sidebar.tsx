@@ -4,11 +4,10 @@ import { BookOpen, PanelLeftClose, PanelLeftOpen } from "lucide-react";
 import { useState } from "react";
 import { Link, useLocation } from "react-router";
 import type { Me } from "../../api";
-import { BRAND } from "../../brand";
+import { BRAND, docs } from "../../brand";
 import { Logo, LogoMark } from "./Logo";
 import { isActive, NAV, visible } from "./nav";
 
-const DOCS_URL = "https://fortproof.dev/";
 
 function readCollapsed(): boolean {
   try {
@@ -87,7 +86,7 @@ export function Sidebar({ me }: { me: Me | undefined }) {
         })}
       </nav>
       <div className="border-t border-line px-2 py-2">
-        {item(DOCS_URL, "Documentation", BookOpen, false, true)}
+        {item(docs(), "Documentation", BookOpen, false, true)}
         <button
           type="button"
           onClick={toggle}

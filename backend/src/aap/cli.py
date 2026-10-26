@@ -12,6 +12,8 @@ from typing import TYPE_CHECKING
 from sqlalchemy import Engine, text
 
 if TYPE_CHECKING:
+    from pathlib import Path
+
     from aap.config import ConfigBundle
 
 
@@ -50,6 +52,22 @@ def cmd_config_load(args: argparse.Namespace) -> None:
         print(f"from the deployment's rules (AAP_RULES_DIR): {', '.join(own)}")
 
 
+def _rules_dir_files(override: Path) -> list[Path]:
+    """The rules files a directory provides. Hidden directories are skipped and symlinks followed: Kubernetes mounts
+    a ConfigMap as `config -> ..data/config`, with `..data -> ..<timestamp>` holding the real files."""
+    from pathlib import Path
+
+    found: list[Path] = []
+    for here, dirs, names in os.walk(override, followlinks=True):
+        dirs[:] = [d for d in dirs if not d.startswith(".")]
+        found += [
+            Path(here) / n
+            for n in names
+            if not n.startswith(".") and Path(n).suffix in {".yaml", ".yml", ".json", ".jsonl"}
+        ]
+    return sorted(found)
+
+
 def _rules_files_read(bundle: ConfigBundle) -> set[str]:
     """Every rules file the platform reads: the governed documents plus the ones read directly."""
     from aap.config import repo_root
@@ -75,14 +93,7 @@ def cmd_config_check(args: argparse.Namespace) -> None:
         print("AAP_RULES_DIR is not set: every rules file is the default shipped in the image")
         return
     known = _rules_files_read(bundle)
-    unknown = sorted(
-        str(p.relative_to(override))
-        for p in override.rglob("*")
-        if p.is_file()
-        and not p.name.startswith(".")
-        and p.suffix in {".yaml", ".yml", ".json", ".jsonl"}
-        and str(p.relative_to(override)) not in known
-    )
+    unknown = [rel for p in _rules_dir_files(override) if (rel := str(p.relative_to(override))) not in known]
     for rel in unknown:
         print(f"unused    {rel}  (not a rules file the platform reads: check the path)", file=sys.stderr)
     if unknown:
@@ -96,11 +107,7 @@ def cmd_config_chart_values(args: argparse.Namespace) -> None:
     override = rules_dir()
     if override is None:
         raise SystemExit("set AAP_RULES_DIR to the directory holding your rules (config/..., catalogue/...)")
-    files = sorted(
-        p
-        for p in override.rglob("*")
-        if p.is_file() and not p.name.startswith(".") and p.suffix in {".yaml", ".yml", ".json", ".jsonl"}
-    )
+    files = _rules_dir_files(override)
     if not files:
         raise SystemExit(f"{override} holds no rules files")
     out = [

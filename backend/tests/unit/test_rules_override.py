@@ -100,3 +100,22 @@ def test_check_fails_on_a_file_the_platform_never_reads(rules: Path, capsys: pyt
         cli.cmd_config_check(argparse.Namespace())
     assert stop.value.code == 1
     assert "config/trusted-producer.yaml" in capsys.readouterr().err
+
+
+def test_check_ignores_the_hidden_directories_kubernetes_mounts_configmaps_through(
+    rules: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    # a ConfigMap volume: the files sit in ..<timestamp>/, reached through ..data and a symlink per file
+    stamped = rules / "..2026_10_26_16_08_13.123" / "config"
+    stamped.mkdir(parents=True)
+    (stamped / "trusted-producers.yaml").write_text((repo_root() / "config/trusted-producers.yaml").read_text())
+    (rules / "..data").symlink_to(rules / "..2026_10_26_16_08_13.123")
+    (rules / "config").symlink_to(rules / "..data" / "config")
+    cli.cmd_config_check(argparse.Namespace())  # no SystemExit: nothing unknown
+    assert "config/trusted-producers.yaml" in capsys.readouterr().out
+    assert ConfigBundle.load().documents["trusted_producers"].source == "deployment"
+    # a misspelt file in the same layout is still caught
+    (stamped / "trusted-producer.yaml").write_text("workflows: []\n")
+    with pytest.raises(SystemExit):
+        cli.cmd_config_check(argparse.Namespace())
+    assert "config/trusted-producer.yaml" in capsys.readouterr().err
