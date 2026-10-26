@@ -116,7 +116,7 @@ tools/             validators: catalogue, config, metrics, links, licences
 
 Contributions are welcome: plugins for systems we don't support yet are a good place to start. See [CONTRIBUTING.md](CONTRIBUTING.md) (DCO sign-off, no CLA), [GOVERNANCE.md](GOVERNANCE.md) and the [Code of Conduct](CODE_OF_CONDUCT.md).
 
-Questions and ideas: [Discussions](https://github.com/cipherfort/fortproof/discussions). Bugs and feature requests: [Issues](https://github.com/cipherfort/fortproof/issues).
+Questions and ideas: [Discussions](https://github.com/cipherfort/fortproof/discussions). Bugs and feature requests: [Issues](https://github.com/cipherfort/fortproof/issues). Tried it? [Tell us how it went](https://github.com/cipherfort/fortproof/issues/new?template=feedback.yml): the project collects no telemetry, so this is how we learn what to fix.
 
 Found a vulnerability? Please report it privately: [SECURITY.md](SECURITY.md).
 
