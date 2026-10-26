@@ -37,6 +37,7 @@ spec:
         app.kubernetes.io/component: {{ .name }}
       annotations:
         checksum/settings: {{ toYaml $.Values.settings | sha256sum }}
+        checksum/rules: {{ toYaml $.Values.rules | sha256sum }}
     spec:
       {{- include "aap.podSpec" (dict "ctx" $ "component" .name "keys" .name "dbKey" .dbKey "args" .args
           "probes" .probes "ports" .ports "resources" .resources) | nindent 6 }}

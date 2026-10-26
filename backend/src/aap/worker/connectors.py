@@ -282,13 +282,13 @@ def epss(engine: Engine, bundle: ConfigBundle, store: SecretStore, p: Mapping[st
 def endoflife(engine: Engine, bundle: ConfigBundle, store: SecretStore, p: Mapping[str, Any]) -> RunResult:
     import yaml
 
-    from aap.config import repo_root
+    from aap.config import rules_file
     from aap.connectors.eol import EolClient
     from aap.services import eol
 
     if not _feeds_enabled(bundle):
         return RunResult(gaps={"disabled": True})
-    policy = yaml.safe_load((repo_root() / "config" / "eol-products.yaml").read_text())
+    policy = yaml.safe_load(rules_file("config/eol-products.yaml").read_text())
     with transaction(engine, "aap_worker") as conn:
         out = eol.eol_sync(conn, EolClient(), policy, datetime.now(UTC))
     return RunResult(

@@ -7,8 +7,9 @@ Two kinds of configuration, deliberately separate:
 | **Settings** | URLs, sign-in, storage, which plugins are switched on | `aap.yaml` ([reference](../reference/settings.md)) or `AAP_*` variables; secrets in the secret store | Operators, per deployment |
 | **Rules** | Organization levels, classification, controls, risk model, exception policy, evidence types, trusted producers | `config/` and `catalogue/` in your fork | Pull request with review; every verdict records the rule version it used |
 
-The platform reads the rules from its image at start-up and loads them into the database on every install and
-upgrade. To deploy your rules with a released version, build an image on top of the release with them copied in:
+The image ships default rules. Your own are only the files you change, in a directory laid out like the repository
+(`rules.dir` / `AAP_RULES_DIR`; the Helm chart's `rules.files`, the Compose stack's `deploy/compose/rules/`). They
+are loaded into the database on every install and upgrade, and `aap config check` shows which files are yours:
 [Connect your organization, step 2](../guide/connect-your-organization.md#2-your-rules).
 
 ## Organization

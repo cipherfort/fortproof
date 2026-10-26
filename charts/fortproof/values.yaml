@@ -32,6 +32,15 @@ settings:
 #   database-url            admin URL, migration job only
 #   database-url-api / -worker / -hook   per-process logins (aap db provision-logins --from-store sets their passwords)
 #   oidc-client-secret, github-app-private-key, gitlab-token, jira-api-token, ... as your plugins need
+# Your own rules: only the files you change, by their path in the repository (config/..., catalogue/...); the rest
+# are the defaults in the image. Mounted at AAP_RULES_DIR in every pod and loaded by the migration job, so every
+# verdict records the rules version. Generate it from a rules directory with `aap config chart-values`.
+rules:
+  files: {}
+  #  config/trusted-producers.yaml: |
+  #    workflow_repository: example-org/security-workflows
+  #    ...
+
 secrets:
   existingSecret: aap-secrets
   keys:

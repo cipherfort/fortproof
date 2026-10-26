@@ -44,10 +44,13 @@ The commands for the latest release, with its version filled in: [docs/install/h
 `settings` is the platform's `aap.yaml` (`schemas/settings/aap.schema.json`): public URL, OIDC issuer and client, the
 evidence store and plugin settings. It must not contain secrets.
 
-The image carries the default rules (`config/`, `catalogue/`). To run with your own (needed before your security
-workflows' evidence is accepted), build an image on top of the release with your rules copied in and set
-`image.repository` and `image.digest` to it ([how](../../docs/guide/connect-your-organization.md#2-your-rules)). Production (`env: production`) refuses development
-sign-in and the file secret store, and requires write-once evidence storage.
+Production (`env: production`) refuses development sign-in and the file secret store, and requires write-once
+evidence storage.
+
+The image carries the default rules (`config/`, `catalogue/`). Your own (needed before your security workflows'
+evidence is accepted) go in `rules.files`, by their path in the repository; only the files you change. The chart
+mounts them at `AAP_RULES_DIR` in every process and the migration job loads them. `aap config chart-values` writes the
+values from a rules directory ([how](../../docs/guide/connect-your-organization.md#2-your-rules)).
 
 For S3 on EKS, annotate the service account for IRSA (`serviceAccount.annotations`); on AKS use Azure workload identity.
 No storage keys in the Secret.

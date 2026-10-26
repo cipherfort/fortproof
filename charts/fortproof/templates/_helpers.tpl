@@ -18,6 +18,8 @@ app.kubernetes.io/instance: {{ .Release.Name }}
 {{- if .Values.image.digest -}}{{ .Values.image.repository }}@{{ .Values.image.digest }}
 {{- else -}}{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}{{- end -}}
 {{- end -}}
+{{/* A rules file's path as a ConfigMap key (keys cannot hold "/"): config/a/b.yaml -> config__a__b.yaml */}}
+{{- define "aap.rulesKey" -}}{{ . | replace "/" "__" }}{{- end -}}
 {{- define "aap.serviceAccount" -}}{{ if .Values.serviceAccount.create }}{{ include "aap.fullname" . }}{{ else }}default{{ end }}{{- end -}}
 
 {{/* Pod spec shared by every process. Call with (dict "ctx" $ "component" "api" "args" (list ...) "ports" ...) */}}
@@ -41,6 +43,9 @@ containers:
       - { name: AAP_SECRETS_DIR, value: /var/run/secrets/aap }
       - { name: AAP_DATABASE_URL_FILE, value: {{ printf "/var/run/secrets/aap/%s" .dbKey | quote }} }
       - { name: HOME, value: /tmp }
+      {{- if ($.Values.rules).files }}
+      - { name: AAP_RULES_DIR, value: /etc/aap-rules }
+      {{- end }}
     {{- with .ports }}
     ports: {{- toYaml . | nindent 6 }}
     {{- end }}
@@ -52,6 +57,9 @@ containers:
       - { name: settings, mountPath: /etc/aap, readOnly: true }
       - { name: secrets, mountPath: /var/run/secrets/aap, readOnly: true }
       - { name: tmp, mountPath: /tmp }
+      {{- if ($.Values.rules).files }}
+      - { name: rules, mountPath: /etc/aap-rules, readOnly: true }
+      {{- end }}
 volumes:
   - name: settings
     configMap: { name: {{ include "aap.fullname" $ }}-settings }
@@ -66,6 +74,15 @@ volumes:
         {{- end }}
   - name: tmp
     emptyDir: { sizeLimit: 256Mi }
+  {{- if ($.Values.rules).files }}
+  - name: rules
+    configMap:
+      name: {{ include "aap.fullname" $ }}-rules
+      items:
+        {{- range $path, $_ := ($.Values.rules).files }}
+        - { key: {{ include "aap.rulesKey" $path }}, path: {{ $path }} }
+        {{- end }}
+  {{- end }}
 {{- with $.Values.nodeSelector }}
 nodeSelector: {{- toYaml . | nindent 2 }}
 {{- end }}

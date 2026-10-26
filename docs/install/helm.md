@@ -34,9 +34,11 @@ evidence store, plugins). It must not contain secrets.
 
 ## Your rules
 
-The image carries the default rules (`config/`, `catalogue/`). To run with your own, which you need before evidence
-from your security workflows is accepted, build an image on top of the release with your rules copied in and point
-`image.repository` and `image.digest` at it: [Connect your organization, step 2](../guide/connect-your-organization.md#2-your-rules).
+The image carries the default rules (`config/`, `catalogue/`). Your own, which you need before evidence from your
+security workflows is accepted, go in `rules.files`: only the files you change, by their path in the repository.
+`aap config chart-values` writes them from your rules directory, so the upgrade is
+`helm upgrade ... -f my-values.yaml -f rules-values.yaml`
+([Connect your organization, step 2](../guide/connect-your-organization.md#2-your-rules)).
 
 ## Upgrade
 

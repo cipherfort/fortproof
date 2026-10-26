@@ -12,16 +12,12 @@ most of it waiting for workflows to run. The same steps were run on a real organ
 You need:
 - a GitHub organization you administer. Public repositories get signed evidence (C3); private ones need GitHub
   Enterprise Cloud for that, otherwise their evidence stays at C2 ([why](../architecture/04-evidence-model.md));
-- a fork (or private copy) of this repository, where your rules live (step 2);
-- a workstation with git, [uv](https://docs.astral.sh/uv/) and Docker. The set-up commands run from your fork,
-  checked out at the release you deploy:
+- a workstation with git, [uv](https://docs.astral.sh/uv/) and Docker, where you run the set-up commands from a
+  checkout of the release you deploy:
 
 <!-- x-release-please-start-version -->
 ```bash
-git clone https://github.com/<you>/fortproof && cd fortproof
-git fetch https://github.com/cipherfort/fortproof tag v0.1.5   # if your fork predates the release
-git switch -c rules v0.1.5
-cd backend && uv sync
+git clone --branch v0.1.5 https://github.com/cipherfort/fortproof && cd fortproof/backend && uv sync
 ```
 <!-- x-release-please-end -->
 
@@ -40,25 +36,30 @@ one the platform still works: it polls GitHub for finished runs on its schedule.
 
 ## 2. Your rules
 
-The rules are files in your fork: `config/` (organization levels, classification, risk model, exception policy,
-trusted producers) and `catalogue/` (the controls). Change them by pull request ([Configure](../configure/index.md)).
-At the least, set:
+The rules are files: `config/` (organization levels, classification, risk model, exception policy, trusted
+producers) and `catalogue/` (the controls). The image ships defaults for all of them. You keep only the files you
+change, in a directory laid out like the repository; keep it in a repository of its own and change it by pull
+request ([Configure](../configure/index.md)). At the least, set:
 
 - `config/organization.yaml`: your organization levels and the classification profile;
-- `config/trusted-producers.yaml`: `workflow_repository: <org>/security-workflows` (step 3 adds the approved commit).
+- `config/trusted-producers.yaml`: your security workflows (step 3 writes it for you).
 
-The platform reads the rules from its image when it starts, and every upgrade loads them into the database with the
-version that produced each verdict. To run the released platform with your rules, build an image on top of the
-release in your fork's CI, and sign it as you would any image you deploy:
-
-```dockerfile
-FROM ghcr.io/cipherfort/fortproof@sha256:<digest of the release you run>
-COPY config/ /app/config/
-COPY catalogue/ /app/catalogue/
+```bash
+# from fortproof/backend; your rules live next to the checkout, in ../../fortproof-rules
+export AAP_RULES_DIR=../../fortproof-rules
+mkdir -p "$AAP_RULES_DIR/config" && cp ../config/organization.yaml "$AAP_RULES_DIR/config/"   # then edit it
+uv run aap config check     # which files come from your rules, which are the defaults
 ```
 
-Then point the chart at it (`image.repository`, `image.digest`). The organization units themselves (business units,
-teams, members) are managed on the **Admin** page, not in files.
+To deploy them:
+
+- **Helm:** `uv run aap config chart-values > rules-values.yaml`, then add `-f rules-values.yaml` to your
+  `helm install` or `helm upgrade`. The chart mounts the files in every process, and the migration job loads them, so
+  every verdict records the version of the rules that produced it.
+- **Compose:** copy them into `deploy/compose/rules/` (same layout) and recreate the platform:
+  `docker compose -f deploy/compose/compose.yaml up -d --force-recreate migrate api worker`.
+
+The organization units themselves (business units, teams, members) are managed on the **Admin** page, not in files.
 
 ## 3. Security workflows
 
@@ -76,8 +77,8 @@ The scans run in **your** `security-workflows` repository, so you decide which c
      && git tag v1.0.0 && git push && git push --tags && git rev-parse HEAD)   # prints the commit SHA
    ```
 
-3. Trust that commit. This edits `config/trusted-producers.yaml` in your fork; merge it through review, then rebuild
-   your rules image and `helm upgrade` (step 2):
+3. Trust that commit. With `AAP_RULES_DIR` set (step 2), this writes `config/trusted-producers.yaml` in your rules,
+   starting from the default the first time; review it, then deploy your rules again (step 2):
 
    ```bash
    uv run aap pipelines approve --repository <org>/security-workflows --sha <full commit SHA> --release v1.0.0
@@ -161,7 +162,7 @@ A finding closes only when a later scan no longer reports it. From here, day-to-
 | Symptom | Look at |
 |---|---|
 | Registration is refused | The reason is listed. Common: `owners.org_unit` is not a unit yet, or a classification answer is not a label in your profile |
-| No evidence after a run | **Evidence → Rejected** for the reason. *Untrusted producer*: the run used a commit that is not in `trusted-producers.yaml`, or your rules image is older than the approval |
+| No evidence after a run | **Evidence → Rejected** for the reason. *Untrusted producer*: the run used a commit that is not in `trusted-producers.yaml`, or your rules were not deployed after the approval (`kubectl -n fortproof exec deploy/fortproof-worker -- aap config check` shows which file is in use) |
 | Evidence at C2, not C3 | A private repository without GitHub Enterprise Cloud, or a self-hosted runner |
 | Nothing at all from GitHub | **Integrations → GitHub**: is the App installed on that repository? Without a webhook, runs arrive at the next scheduled sync (`kubectl -n fortproof exec deploy/fortproof-worker -- aap integrations run github` runs one now) |
 | The application is not visible to its team | **Admin**: add the people to the unit that owns it (`owners.org_unit`) |

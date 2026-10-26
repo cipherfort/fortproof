@@ -11,6 +11,8 @@ auth:
     internal_url: http://keycloak:8180   # the containers reach Keycloak by its service name
 secrets:
   backend: mounted
+rules:
+  dir: /etc/aap-rules   # deploy/compose/rules/: your own rules files replace the defaults, one for one
 evidence_store:
   kind: s3
   bucket: aap-evidence

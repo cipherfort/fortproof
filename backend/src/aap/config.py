@@ -34,6 +34,29 @@ def repo_root() -> Path:
     raise FileNotFoundError("cannot locate repository root (set AAP_REPO_ROOT)")
 
 
+def rules_dir() -> Path | None:
+    """The deployment's own rules (AAP_RULES_DIR): only the files it changes, laid out like the repository
+    (`config/...`, `catalogue/...`). Everything else comes from the defaults shipped in the image."""
+    env = os.environ.get("AAP_RULES_DIR")
+    return Path(env) if env else None
+
+
+def rules_file(rel: str, root: Path | None = None) -> Path:
+    """A rules file by its repository path: the deployment's copy when AAP_RULES_DIR has one, else the default."""
+    if rel.startswith("/") or ".." in Path(rel).parts:
+        raise ValueError(f"rules paths are relative to the repository: {rel!r}")
+    override = rules_dir()
+    if override is not None and (override / rel).is_file():
+        return override / rel
+    return (root or repo_root()) / rel
+
+
+def rules_source(rel: str) -> str:
+    """Where a rules file comes from: `deployment` (AAP_RULES_DIR) or `default` (the image)."""
+    override = rules_dir()
+    return "deployment" if override is not None and (override / rel).is_file() else "default"
+
+
 def _load_yaml(path: Path) -> Any:
     with path.open() as f:
         return yaml.safe_load(f)
@@ -54,6 +77,8 @@ class ConfigDocument:
     version: str
     content: dict[str, Any]
     sha256: str
+    path: str = ""  # repository path, e.g. config/trusted-producers.yaml
+    source: str = "default"  # "deployment" when AAP_RULES_DIR provides it
 
 
 @dataclass
@@ -82,15 +107,17 @@ class ConfigBundle:
             "metrics": "config/metrics.yaml",
             "integrations": "config/integrations.yaml",
         }
-        profile = str(_load_yaml(root / "config/organization.yaml").get("profile") or "generic")
+        profile = str(_load_yaml(rules_file("config/organization.yaml", root)).get("profile") or "generic")
         if not profile.replace("-", "").replace("_", "").isalnum():
             raise ValueError(f"invalid classification profile name {profile!r}")
         files["classification"] = f"config/profiles/{profile}/classification.yaml"
         bundle = cls(root=root)
         for kind, rel in files.items():
-            content = _load_yaml(root / rel)
+            content = _load_yaml(rules_file(rel, root))
+            if not isinstance(content, dict):
+                raise ValueError(f"{rel} ({rules_source(rel)}): expected a YAML mapping")
             version = str(content.get("catalogue_version") or content.get("version") or "0")
-            bundle.documents[kind] = ConfigDocument(kind, version, content, digest(content))
+            bundle.documents[kind] = ConfigDocument(kind, version, content, digest(content), rel, rules_source(rel))
         return bundle
 
     def doc(self, kind: str) -> dict[str, Any]:
