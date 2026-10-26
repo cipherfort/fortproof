@@ -1,7 +1,10 @@
-# Good first issues (seed list)
+# Good first issues
 
-Small, self-contained pieces of work, each with existing tests or a pattern to copy. They are opened in the
-[issue tracker](https://github.com/cipherfort/fortproof/issues) with the `good first issue` label.
+Small, self-contained pieces of work, each with existing tests or a pattern to copy. They are open in the issue
+tracker: [good first issues](https://github.com/cipherfort/fortproof/issues?q=is%3Aopen+label%3A%22good+first+issue%22)
+and [help wanted](https://github.com/cipherfort/fortproof/issues?q=is%3Aopen+label%3A%22help+wanted%22). Comment on one to
+take it; a maintainer will help. The Prometheus metrics and AWS identity items are now on the
+[roadmap](../../ROADMAP.md) (0.3).
 
 | Issue | Where to start | Pattern to copy |
 |---|---|---|
