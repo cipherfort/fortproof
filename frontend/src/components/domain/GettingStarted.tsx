@@ -4,11 +4,10 @@ import { Check } from "lucide-react";
 import type { ReactNode } from "react";
 import { Link } from "react-router";
 import { api } from "../../api";
-import { docs } from "../../brand";
 import { ButtonLink } from "../ui/Button";
 import { Card } from "../ui/Card";
 
-interface Item { title: string; body: ReactNode; done: boolean | null; action?: ReactNode; unknown?: string; guide: string }
+interface Item { title: string; body: ReactNode; done: boolean | null; action?: ReactNode; unknown?: string }
 
 /** First-run checklist. A step is ticked only when the platform can see it is done; a step it cannot check
  *  (publishing the pipelines happens in your source control) is never ticked for you. */
@@ -22,28 +21,24 @@ export function GettingStarted({ perms, apps }: { perms: Set<string>; apps: numb
       body: "People sign in through your identity provider (OIDC). Until then the platform only runs in development mode.",
       done: on("oidc"),
       action: canIntegrations && <Link to="/integrations/oidc">Set up sign-in</Link>,
-      guide: docs("install/helm/"),
     },
     {
       title: "Connect source control",
       body: "The GitHub App or GitLab integration reads repository settings and receives evidence from pipelines.",
       done: on("github", "gitlab"),
       action: canIntegrations && <Link to="/integrations/github">Set up GitHub</Link>,
-      guide: docs("guide/connect-your-organization/#4-github-app"),
     },
     {
       title: "Publish the security pipelines",
       body: <>Copy the shared workflows into your organisation (<code>pipelines/</code>) and call them from each repository. Only evidence from approved workflows counts.</>,
       done: null,
       unknown: "done in your source control",
-      guide: docs("guide/connect-your-organization/#3-security-workflows"),
     },
     {
       title: "Register your first application",
       body: "Add .security/application.yaml to the repository and register it; its risk tier decides which controls apply.",
       done: apps === null ? null : apps > 0,
       unknown: "done by an application team",
-      guide: docs("guide/connect-your-organization/#5-onboard-an-application"),
       action: perms.has("application.register") && <ButtonLink to="/register" variant="primary" size="sm">Register an application</ButtonLink>,
     },
   ];
@@ -60,12 +55,7 @@ export function GettingStarted({ perms, apps }: { perms: Set<string>; apps: numb
             <div className="min-w-0 flex-1">
               <div className="text-[13px] font-semibold text-ink">{it.title}{it.done === null && it.unknown && <span className="ml-2 text-xs font-normal text-muted">{it.unknown}</span>}</div>
               <p className="m-0 mt-0.5 text-[13px] text-ink-2">{it.body}</p>
-              {!it.done && (
-                <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-[13px]">
-                  {it.action}
-                  <a href={it.guide} target="_blank" rel="noreferrer" aria-label={`${it.title}: the guide, step by step`}>How, step by step</a>
-                </div>
-              )}
+              {!it.done && it.action && <div className="mt-2 text-[13px]">{it.action}</div>}
             </div>
           </li>
         ))}

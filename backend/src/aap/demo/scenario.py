@@ -91,7 +91,6 @@ def seed(conn: Connection, bundle: ConfigBundle, blobs: EvidenceBlobStore, now: 
         "ekim": registry.upsert_user(conn, "Eun Kim", "ekim"),  # engineer, Payments
         "fwong": registry.upsert_user(conn, "Farah Wong", "fwong"),  # executive
         "gokafor": registry.upsert_user(conn, "Grace Okafor", "gokafor"),  # engineer, People Systems
-        "nhaddad": registry.upsert_user(conn, "Noor Haddad", "nhaddad"),  # engineer in no team yet: sees nothing
         "padmin": registry.upsert_user(conn, "Pat Admin", "padmin"),  # platform administrator (no data access)
     }
     for login, team in (
