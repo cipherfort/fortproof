@@ -3,7 +3,7 @@ import AxeBuilder from "@axe-core/playwright";
 import { expect, test, visit } from "./fixtures";
 
 // WCAG 2.2 AA on every page, in both themes; the administrator pages as the platform administrator.
-const PAGES = ["/", "/apps", "/apps/APP-00001", "/apps/APP-00001/controls", "/apps/APP-00001/evidence", "/evidence", "/evidence/view/rejected", "/findings",
+const PAGES = ["/", "nhaddad:/", "/apps", "/apps/APP-00001", "/apps/APP-00001/controls", "/apps/APP-00001/evidence", "/evidence", "/evidence/view/rejected", "/findings",
   "/controls", "/controls/ASC-BLD-02", "/maturity", "/supply-chain", "/apps/APP-00001/supply-chain", "/cve/CVE-2021-44228",
   "/exceptions", "/exceptions/EX-000002", "/exceptions/new", "/assessments", "/assessments/new", "/leadership", "/integrations", "/register",
   "padmin:/", "padmin:/admin", "padmin:/admin/roles", "padmin:/integrations/github"];
