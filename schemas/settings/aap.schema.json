@@ -38,6 +38,15 @@
         "keyvault_url": { "type": "string", "pattern": "^https://" }
       }
     },
+    "rules": {
+      "type": "object", "additionalProperties": false,
+      "properties": {
+        "dir": {
+          "type": "string",
+          "description": "Directory with your own rules files, laid out like the repository (config/..., catalogue/...): only the files you change; the rest are the defaults shipped in the image. The Helm chart sets it from rules.files"
+        }
+      }
+    },
     "worker": {
       "type": "object", "additionalProperties": false,
       "properties": {

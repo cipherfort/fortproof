@@ -17,7 +17,7 @@ entry links to its full reference. Anything not listed here is internal and may 
 | Interface | Format | Reference |
 |---|---|---|
 | Settings | `aap.yaml` (JSON Schema) or `AAP_*` environment variables | [Settings](settings.md) |
-| Rules | YAML in `config/` and `catalogue/`, validated by schemas | [Configure](../configure/index.md) |
+| Rules | YAML in `config/` and `catalogue/`: the image's defaults, replaced file by file by yours (`AAP_RULES_DIR`, Helm `rules.files`) | [Configure](../configure/index.md) |
 | Secrets | One file per secret (mounted Kubernetes or Docker secrets), or Azure Key Vault | [Settings](settings.md) · [chart README](https://github.com/cipherfort/fortproof/blob/main/charts/fortproof/README.md) |
 | Application contract | `.security/application.yaml`, `asvs.yaml` and threat models in each application repository | [Schemas](https://github.com/cipherfort/fortproof/tree/main/schemas/repo-contract) · [template](https://github.com/cipherfort/fortproof/tree/main/templates/repo-contract) |
 | Evidence | `evidence-manifest.json` written by the shipped pipelines, optionally signed as an in-toto statement | [Manifest schema](https://github.com/cipherfort/fortproof/blob/main/schemas/evidence/evidence-manifest.schema.json) · [Evidence type v1](../attestation/evidence/v1.md) · [Evidence model](../architecture/04-evidence-model.md) |
@@ -46,6 +46,7 @@ The image's `aap` command (also installed as `fortproof`). Operators run it insi
 | `aap api` · `aap hook` · `aap worker` | Run the web UI and API, the webhook receiver, or the background worker |
 | `aap migrate` | Apply database migrations and create partitions |
 | `aap config load` | Load the rules (catalogue and config) into the database, with their versions |
+| `aap config check` · `aap config chart-values` | Show which rules files are yours and which are defaults; print your rules as Helm values |
 | `aap settings check <file>` | Validate an `aap.yaml` and show the settings it maps to |
 | `aap db provision-logins` | Set the per-process database logins' passwords from the secret store |
 | `aap integrations status` · `aap integrations run <name>` | What is configured and missing, with the last runs; run one integration now |

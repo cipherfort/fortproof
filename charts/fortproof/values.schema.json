@@ -24,6 +24,17 @@
         "secrets": { "type": "object", "properties": { "backend": { "const": "mounted" } } }
       }
     },
+    "rules": {
+      "type": "object", "additionalProperties": false,
+      "properties": {
+        "files": {
+          "type": "object",
+          "description": "Your rules files by repository path (config/... or catalogue/...), as text; the rest are the image's defaults",
+          "propertyNames": { "pattern": "^(config|catalogue)/[A-Za-z0-9._-]+(/[A-Za-z0-9._-]+)*\\.(yaml|yml|json|jsonl)$" },
+          "additionalProperties": { "type": "string", "minLength": 1 }
+        }
+      }
+    },
     "secrets": {
       "type": "object", "additionalProperties": false, "required": ["existingSecret", "keys"],
       "properties": {

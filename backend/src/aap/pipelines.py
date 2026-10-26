@@ -20,7 +20,7 @@ from typing import Any
 
 import yaml
 
-from aap.config import repo_root
+from aap.config import repo_root, rules_dir
 
 MARKER = "      # @@aap-evidence-tool@@"
 HEREDOC_END = "AAP_EVIDENCE_EOF"
@@ -127,6 +127,20 @@ def export_gitlab(target: Path) -> list[Path]:
     return written
 
 
+def _trusted_producers_path() -> Path:
+    """The trusted-producers.yaml an approval edits: the deployment's own copy under AAP_RULES_DIR (started from the
+    shipped default the first time), else the repository's."""
+    rel = "config/trusted-producers.yaml"
+    override = rules_dir()
+    if override is None:
+        return repo_root() / rel
+    target = override / rel
+    if not target.exists():
+        target.parent.mkdir(parents=True, exist_ok=True)
+        target.write_text((repo_root() / rel).read_text())
+    return target
+
+
 def approve_gitlab(
     sha: str,
     release: str,
@@ -138,7 +152,7 @@ def approve_gitlab(
     """Edit the `gitlab:` block of trusted-producers.yaml (ADR-033): one entry per shipped component."""
     if not SHA.match(sha):
         raise PipelineError("--sha must be a full 40-character commit SHA (tags are mutable)")
-    path = path or repo_root() / "config" / "trusted-producers.yaml"
+    path = path or _trusted_producers_path()
     text = path.read_text()
     doc = yaml.safe_load(text)
     today = today or date.today()
@@ -229,7 +243,7 @@ def approve(
         raise PipelineError("--sha must be a full 40-character commit SHA (tags are mutable)")
     if repository is not None and not REPO.match(repository):
         raise PipelineError("--repository must be owner/name")
-    path = path or repo_root() / "config" / "trusted-producers.yaml"
+    path = path or _trusted_producers_path()
     text = path.read_text()
     doc = yaml.safe_load(text)
     today = today or date.today()

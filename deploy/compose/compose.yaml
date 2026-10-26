@@ -19,6 +19,7 @@ x-aap: &aap
     HOME: /tmp
   volumes:
     - ./aap.yaml:/etc/aap/aap.yaml:ro
+    - ./rules:/etc/aap-rules:ro   # your own rules (only the files you change); aap.yaml sets rules.dir
     - aap-secrets:/var/run/secrets/aap:ro
   depends_on:
     migrate: { condition: service_completed_successfully }

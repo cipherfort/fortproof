@@ -47,7 +47,9 @@ for p in api worker hook reporting; do
 done
 kubectl -n "$ns" create secret generic aap-secrets "${args[@]}" --dry-run=client -o yaml | kubectl apply -f - >/dev/null
 
-helm upgrade --install fortproof "$root/charts/fortproof" -n "$ns" -f "$root/charts/fortproof/ci/smoke-values.yaml" --wait --timeout 10m
+# one rules file supplied by the deployment (rules.files), as an adopter would for their trusted producers
+helm upgrade --install fortproof "$root/charts/fortproof" -n "$ns" -f "$root/charts/fortproof/ci/smoke-values.yaml" \
+  --set-file 'rules.files.config/trusted-producers\.yaml'="$root/config/trusted-producers.yaml" --wait --timeout 10m
 for c in api worker hook; do kubectl -n "$ns" rollout status "deploy/fortproof-$c" --timeout=180s; done
 
 # each process connects as its own least-privilege login
@@ -56,6 +58,9 @@ logins=$(kubectl -n "$ns" exec deploy/postgres -- psql -U postgres -d aap -Atc \
 echo "connected logins: $logins"
 [[ "$logins" == *aap_api_login* && "$logins" == *aap_worker_login* ]] || { echo "process logins not in use" >&2; exit 1; }
 
+# the deployment's rules file is the one in use, in every process
+kubectl -n "$ns" exec deploy/fortproof-worker -- aap config check | grep -E '^deployment +config/trusted-producers.yaml' \
+  || { echo "the rules file from rules.files is not in use" >&2; exit 1; }
 kubectl -n "$ns" exec deploy/fortproof-worker -- aap demo seed >/dev/null
 kubectl -n "$ns" port-forward svc/fortproof-api 18000:80 >/dev/null 2>&1 &
 pf=$!; trap 'kill $pf 2>/dev/null || true' EXIT
@@ -72,7 +77,9 @@ if ! { [ "$apps" -ge 4 ] && [ "$team" -lt "$apps" ]; }; then echo "scoping check
 kubectl -n "$ns" exec deploy/fortproof-api -- sh -c 'id -u; touch /app/x 2>/dev/null && echo WRITABLE || echo read-only' | tr '\n' ' '
 echo
 # an upgrade runs the migration hook again (forward-only, idempotent) and rolls the processes
-helm upgrade fortproof "$root/charts/fortproof" -n "$ns" -f "$root/charts/fortproof/ci/smoke-values.yaml" --set api.replicas=2 --wait --timeout 10m
+helm upgrade fortproof "$root/charts/fortproof" -n "$ns" --reuse-values --set api.replicas=2 --wait --timeout 10m
 [ "$(kubectl -n "$ns" get deploy fortproof-api -o jsonpath='{.status.readyReplicas}')" = "2" ] || { echo "upgrade did not roll out" >&2; exit 1; }
+kubectl -n "$ns" exec deploy/fortproof-api -- aap config check | grep -qE '^deployment +config/trusted-producers.yaml' \
+  || { echo "the deployment's rules were lost on upgrade" >&2; exit 1; }
 curl -sf http://127.0.0.1:18000/api/v1/health/live >/dev/null || true
 echo "helm smoke test passed (install and upgrade)"

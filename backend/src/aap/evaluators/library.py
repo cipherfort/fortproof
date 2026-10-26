@@ -577,9 +577,9 @@ def asvs_requirements(version: str = "5.0.0") -> list[tuple[str, str, int]]:
     if version not in _ASVS_CACHE:
         import yaml
 
-        from aap.config import repo_root
+        from aap.config import rules_file
 
-        path = repo_root() / "catalogue" / "frameworks" / f"asvs-{version}-requirements.yaml"
+        path = rules_file(f"catalogue/frameworks/asvs-{version}-requirements.yaml")
         doc = yaml.safe_load(path.read_text()) if path.exists() else {"requirements": []}
         _ASVS_CACHE[version] = [(r["id"], r["chapter"], int(r["level"])) for r in doc["requirements"]]
     return _ASVS_CACHE[version]
@@ -605,9 +605,9 @@ def asvs_chapter_applies(rule: str, caps: dict[str, object]) -> bool:
 def _asvs_chapters(caps: dict[str, object]) -> set[str]:
     import yaml
 
-    from aap.config import repo_root
+    from aap.config import rules_file
 
-    doc = yaml.safe_load((repo_root() / "catalogue" / "frameworks" / "asvs-applicability.yaml").read_text())
+    doc = yaml.safe_load(rules_file("catalogue/frameworks/asvs-applicability.yaml").read_text())
     return {c["id"] for c in doc["chapters"] if asvs_chapter_applies(str(c["applies_when"]), caps)}
 
 

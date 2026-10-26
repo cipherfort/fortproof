@@ -22,7 +22,7 @@ from typing import Any
 
 from sqlalchemy import Connection, Engine, text
 
-from aap.config import ConfigBundle, repo_root
+from aap.config import ConfigBundle, rules_file
 from aap.db import transaction
 from aap.ids import uuid7
 from aap.plugins import Plugin, registry
@@ -209,7 +209,7 @@ def github_client(store: SecretStore, bundle: ConfigBundle) -> Any:
 
     auth = github_auth(store)
     att_cfg = _policy_value(bundle, "github.attestation") or {}
-    root = repo_root() / str(att_cfg.get("trusted_root", "config/sigstore/trusted_root.jsonl"))
+    root = rules_file(str(att_cfg.get("trusted_root", "config/sigstore/trusted_root.jsonl")))
     verifier = None
     if root.exists():
         import shutil

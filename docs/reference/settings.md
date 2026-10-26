@@ -20,6 +20,7 @@ secrets: credentials come from the secret store (`aap secrets put`, Kubernetes s
 | `secrets.backend` | `AAP_SECRETS_BACKEND` | `file` / `mounted` / `keyvault` |
 | `secrets.dir` | `AAP_SECRETS_DIR` | string |
 | `secrets.keyvault_url` | `AAP_KEYVAULT_URL` | pattern `^https://` |
+| `rules.dir` | `AAP_RULES_DIR` | string — Directory with your own rules files, laid out like the repository (config/..., catalogue/...): only the files you change; the rest are the defaults shipped in the image. The Helm chart sets it from rules.files |
 | `worker.scheduler_interval` | `AAP_SCHEDULER_INTERVAL` | integer — Seconds between scheduler sweeps: integration syncs that are due, deadline breaches, exception expiry, re-evaluation, snapshot refresh and evidence chain verification (default 300) |
 | `evidence_store.kind` | `AAP_BLOB_KIND` | `local` / `azure` / `s3` |
 | `evidence_store.root` | `AAP_BLOB_ROOT` | string |
