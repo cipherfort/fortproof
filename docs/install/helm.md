@@ -17,14 +17,14 @@ Before you start you need:
 <!-- x-release-please-start-version -->
 ```bash
 # the chart: signed by release.yml in cipherfort/fortproof
-cosign verify ghcr.io/cipherfort/charts/fortproof:0.1.5 \
+cosign verify ghcr.io/cipherfort/charts/fortproof:0.2.0 \
   --certificate-identity-regexp '^https://github.com/cipherfort/fortproof/.github/workflows/release.yml@' \
   --certificate-oidc-issuer https://token.actions.githubusercontent.com
 # the image the chart pins: SLSA provenance from the same workflow
-gh attestation verify oci://ghcr.io/cipherfort/fortproof:v0.1.5 --repo cipherfort/fortproof
+gh attestation verify oci://ghcr.io/cipherfort/fortproof:v0.2.0 --repo cipherfort/fortproof
 
 # the Secret with the database URLs and plugin credentials comes first (chart README, step 2)
-helm install fortproof oci://ghcr.io/cipherfort/charts/fortproof --version 0.1.5 -n fortproof -f my-values.yaml
+helm install fortproof oci://ghcr.io/cipherfort/charts/fortproof --version 0.2.0 -n fortproof -f my-values.yaml
 ```
 <!-- x-release-please-end -->
 
