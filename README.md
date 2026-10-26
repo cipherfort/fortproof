@@ -42,8 +42,8 @@ repository → security pipeline → evidence (verified) → controls → findin
 
 <!-- x-release-please-start-version -->
 ```bash
-git clone --branch v0.1.5 https://github.com/cipherfort/fortproof && cd fortproof
-AAP_IMAGE=ghcr.io/cipherfort/fortproof:v0.1.5 deploy/compose/setup.sh
+git clone --branch v0.2.0 https://github.com/cipherfort/fortproof && cd fortproof
+AAP_IMAGE=ghcr.io/cipherfort/fortproof:v0.2.0 deploy/compose/setup.sh
 # then open http://localhost:8000; the script prints the demo users' password
 ```
 <!-- x-release-please-end -->

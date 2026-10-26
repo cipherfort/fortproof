@@ -3,6 +3,13 @@
 All notable changes, newest first. From 0.1.0 on this file is maintained by release-please from Conventional Commit
 messages (`feat:`, `fix:`, `docs:` ...); see [RELEASING.md](RELEASING.md).
 
+## [0.2.0](https://github.com/cipherfort/fortproof/compare/v0.1.5...v0.2.0) (2026-10-26)
+
+
+### Features
+
+* an "I tried FortProof" feedback form ([#114](https://github.com/cipherfort/fortproof/issues/114)) ([d958e4a](https://github.com/cipherfort/fortproof/commit/d958e4a3e7b8db6a784170c5ef22d9b4ad163b2f))
+
 ## [0.1.5](https://github.com/cipherfort/fortproof/compare/v0.1.4...v0.1.5) (2026-10-21)
 
 

@@ -1,6 +1,6 @@
 [project]
 name = "aap"
-version = "0.1.5"
+version = "0.2.0"
 description = "FortProof: control, evidence, risk and maturity engine"
 readme = "README.md"
 requires-python = ">=3.12,<3.13"

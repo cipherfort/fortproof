@@ -19,8 +19,8 @@ You need:
 <!-- x-release-please-start-version -->
 ```bash
 git clone https://github.com/<you>/fortproof && cd fortproof
-git fetch https://github.com/cipherfort/fortproof tag v0.1.5   # if your fork predates the release
-git switch -c rules v0.1.5
+git fetch https://github.com/cipherfort/fortproof tag v0.2.0   # if your fork predates the release
+git switch -c rules v0.2.0
 cd backend && uv sync
 ```
 <!-- x-release-please-end -->

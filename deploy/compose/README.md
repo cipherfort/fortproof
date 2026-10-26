@@ -5,7 +5,7 @@ storage with Object Lock (RustFS) and the demo world. Tested end to end (`setup.
 
 <!-- x-release-please-start-version -->
 ```bash
-AAP_IMAGE=ghcr.io/cipherfort/fortproof:v0.1.5 deploy/compose/setup.sh   # a released image (match your checkout's tag)
+AAP_IMAGE=ghcr.io/cipherfort/fortproof:v0.2.0 deploy/compose/setup.sh   # a released image (match your checkout's tag)
 deploy/compose/setup.sh            # or build the image from this checkout; both generate secrets, start, load the demo
 # open http://localhost:8000 and sign in as appsec, lead, admin or dev (the script prints the password)
 docker compose -f deploy/compose/compose.yaml --profile full up -d   # + Dependency-Track
