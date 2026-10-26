@@ -205,10 +205,20 @@ test("an integration's setup guide opens in a drawer and never asks for a secret
   await expect(page.getByRole("dialog").locator("input, textarea")).toHaveCount(0);
 });
 
+test("an engineer in no team is told how to get access, not shown the set-up checklist", async ({ page, problems }) => {
+  void problems;
+  await visit(page, "/", "nhaddad");
+  await expect(page.getByText("No applications to show you yet")).toBeVisible();
+  await expect(page.locator("main")).toContainText("Ask a platform administrator to add you to your team");
+  await expect(page.getByRole("list", { name: "Getting started steps" })).toHaveCount(0);
+});
+
 test("a platform administrator starts from the setup checklist and manages roles", async ({ page, problems }) => {
   void problems;
   await visit(page, "/", "padmin");
   await expect(page.getByRole("list", { name: "Getting started steps" })).toContainText("Connect source control");
+  await expect(page.getByRole("link", { name: "Connect source control: the guide, step by step" })).toHaveAttribute(
+    "href", "https://fortproof.dev/guide/connect-your-organization/#4-github-app");
   await visit(page, "/admin/roles", "padmin");
   await expect(page.locator("main tbody")).toContainText("Chandra Patel");
 });
