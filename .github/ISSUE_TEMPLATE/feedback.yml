@@ -1,0 +1,35 @@
+name: I tried FortProof
+description: Tell us how it went, what worked and where you got stuck (the project collects no telemetry, so this is how we learn)
+title: "Feedback: "
+labels: [feedback]
+body:
+  - type: markdown
+    attributes:
+      value: "Thank you. A few lines are plenty. Leave out secrets, tokens and internal hostnames. Security problems go to private reporting (SECURITY.md), not here."
+  - type: dropdown
+    id: how
+    attributes:
+      label: How did you run it?
+      options: [The Compose demo, Helm on Kubernetes, From source, Only read the docs]
+    validations: { required: true }
+  - type: dropdown
+    id: connected
+    attributes:
+      label: What did you connect?
+      multiple: true
+      options: [Nothing yet, GitHub, GitLab, Jira or another ticketing system, A cloud posture integration, A SIEM, Dependency-Track or DefectDojo]
+  - type: textarea
+    id: worked
+    attributes: { label: "What worked well?" }
+  - type: textarea
+    id: stuck
+    attributes:
+      label: Where did you get stuck?
+      description: The exact step or page helps most.
+  - type: textarea
+    id: real
+    attributes:
+      label: What would make you use it for real on your own applications?
+  - type: input
+    id: version
+    attributes: { label: "Version", placeholder: "0.1.5" }
