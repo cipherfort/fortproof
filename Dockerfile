@@ -29,7 +29,7 @@ RUN uv sync --frozen --no-dev
 # twelve standard-library vulnerabilities in net/http, crypto/tls and html/template. Cross-compiled, static, no cgo.
 # The tag is checked out (and its commit checked) so Go stamps the module version v2.102.0+dirty; from a bare commit
 # it stamps a v2.0.0 pseudo-version, which scanners match against every gh CVE since 2.0.
-FROM --platform=$BUILDPLATFORM golang:1.27.2-bookworm@sha256:5cf287a799e6b94384bad13d16b14904c531f51ba65792237e122ce42b392f61 AS gh
+FROM --platform=$BUILDPLATFORM golang:1.27.4-bookworm@sha256:4fa7c968ba93f1635670522dbb01a2c78150443e1385746924566079f36570ea AS gh
 ARG GH_VERSION=2.102.0
 ARG GH_COMMIT=fc4b137cdef0a6bd28fd461b7cf9c84a5812a8cd
 ARG TARGETOS
